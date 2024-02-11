@@ -1,15 +1,68 @@
 // ==UserScript==
-// @name         GitHub Absolute Dates with Relative
+// @name         GitHub Absolute Dates with Relative (Issues Only)
 // @namespace    http://tampermonkey.net/
-// @version      1.0
-// @description  Shows both relative and absolute dates on GitHub
+// @version      3.0
+// @description  Shows both relative and absolute dates on GitHub, including last edit time for comments (Issues Only)
 // @author       Vintagemotors
-// @match        https://github.com/*
-// @grant        none
+// @match        https://github.com/*/issues/*
+// @grant        GM_addStyle
 // ==/UserScript==
 
 (function() {
     'use strict';
+
+    GM_addStyle('.no-wrap { white-space: nowrap !important; max-width: 180px !important; }');
+
+    function isExcluded(element) {
+        // Check if the element has the exclude-from-script class
+        return element.classList.contains('exclude-from-script');
+    }
+
+    function replaceRelativeDates() {
+        var relativeTimeElements = document.querySelectorAll('relative-time');
+
+        relativeTimeElements.forEach(function(element) {
+            // Exclude elements with the exclude-from-script class
+            if (!isExcluded(element)) {
+                var dateTimeAttribute = element.getAttribute('datetime');
+                if (dateTimeAttribute) {
+                    var absoluteDate = new Date(dateTimeAttribute);
+                    var titleAttribute = element.getAttribute('title');
+                    var relativeDate = titleAttribute ? titleAttribute : '';
+
+                    var timeDifference = Date.now() - absoluteDate;
+                    var daysAgo = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+
+                    var relativeTimeString = getRelativeTimeString(daysAgo);
+
+                    // Create a new span element
+                    var newSpan = document.createElement('span');
+                    newSpan.className = 'no-wrap';
+                    newSpan.title = 'Relative date: ' + relativeDate;
+                    newSpan.textContent = absoluteDate.toLocaleString() + ' - ' + relativeTimeString;
+
+                    // Replace the original relative-time element with the new span
+                    element.parentNode.replaceChild(newSpan, element);
+                }
+            }
+        });
+
+        // Display last edit time for comments
+        var commentContainers = document.querySelectorAll('.js-comment-container');
+
+        commentContainers.forEach(function(container) {
+            var timestampElement = container.querySelector('.js-timestamp');
+            var editedInfo = container.querySelector('.edited-info');
+
+            if (timestampElement && !editedInfo) {
+                var editedElement = timestampElement.cloneNode(true);
+                editedElement.classList.add('edited-info');
+                editedElement.textContent = ' (Edited)';
+
+                container.appendChild(editedElement);
+            }
+        });
+    }
 
     function getRelativeTimeString(daysAgo) {
         if (daysAgo === 0) {
@@ -33,27 +86,6 @@
                 }
             }
         }
-    }
-
-    function replaceRelativeDates() {
-        var relativeTimeElements = document.querySelectorAll('relative-time');
-
-        relativeTimeElements.forEach(function(element) {
-            var dateTimeAttribute = element.getAttribute('datetime');
-            if (dateTimeAttribute) {
-                var absoluteDate = new Date(dateTimeAttribute);
-                var relativeDate = element.getAttribute('title');
-
-                var timeDifference = Date.now() - absoluteDate;
-                var daysAgo = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-
-                var relativeTimeString = getRelativeTimeString(daysAgo);
-
-                element.outerHTML = '<span class="no-wrap" title="Relative date: ' + relativeDate + '">' +
-                    absoluteDate.toLocaleString() + ' - ' + relativeTimeString +
-                    '</span>';
-            }
-        });
     }
 
     // Run the function initially
