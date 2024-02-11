@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         GitHub Absolute Dates with Relative (Issues Only)
 // @namespace    http://tampermonkey.net/
-// @version      0.31
-// @description  Shows both relative and absolute dates on GitHub, excluding file timestamps (Issues Only)
-// @author       Vintagemotors
+// @version      4.0
+// @description  Shows both relative and absolute dates on GitHub, including last edit time for comments (Issues Only)
+// @author       You
 // @match        https://github.com/*/issues/*
 // @grant        GM_addStyle
 // ==/UserScript==
@@ -11,7 +11,15 @@
 (function() {
     'use strict';
 
-    GM_addStyle('.no-wrap { white-space: nowrap !important; max-width: 180px !important; }');
+window.addEventListener('load', function() {
+    GM_addStyle('.table-list-header-toggle):not(.d-flex) { white-space: nowrap !important; max-width: 180px !important; }');
+});
+
+window.addEventListener('load', function() {
+    var observer = new MutationObserver(replaceRelativeDates);
+    observer.observe(document.body, { childList: true, subtree: true });
+});
+
 
     function isExcluded(element) {
         // Check if the element has the exclude-from-script class
@@ -44,6 +52,22 @@
                     // Replace the original relative-time element with the new span
                     element.parentNode.replaceChild(newSpan, element);
                 }
+            }
+        });
+
+        // Display last edit time for comments
+        var commentContainers = document.querySelectorAll('.js-comment-container');
+
+        commentContainers.forEach(function(container) {
+            var timestampElement = container.querySelector('.js-timestamp');
+            var editedInfo = container.querySelector('.edited-info');
+
+            if (timestampElement && !editedInfo) {
+                var editedElement = timestampElement.cloneNode(true);
+                editedElement.classList.add('edited-info');
+                editedElement.textContent = ' (Edited)';
+
+                container.appendChild(editedElement);
             }
         });
     }
