@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GitHub Absolute Dates with Relative (Issues Only)
 // @namespace    http://tampermonkey.net/
-// @version      3.1
+// @version      0.31
 // @description  Shows both relative and absolute dates on GitHub, excluding file timestamps (Issues Only)
 // @author       Vintagemotors
 // @match        https://github.com/*/issues/*
