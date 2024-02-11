@@ -1,0 +1,32 @@
+// ==UserScript==
+// @name         GitHub Absolute Dates
+// @namespace    http://tampermonkey.net/
+// @version      0.2
+// @description  Replaces relative dates with absolute dates on GitHub
+// @author       Vintagemotors
+// @match        https://github.com/*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    function replaceRelativeDates() {
+        var relativeTimeElements = document.querySelectorAll('relative-time');
+
+        relativeTimeElements.forEach(function(element) {
+            var dateTimeAttribute = element.getAttribute('datetime');
+            if (dateTimeAttribute) {
+                var absoluteDate = new Date(dateTimeAttribute).toLocaleString();
+                element.outerHTML = '<span class="no-wrap">' + absoluteDate + '</span>';
+            }
+        });
+    }
+
+    // Run the function initially
+    replaceRelativeDates();
+
+    // Use MutationObserver to handle dynamically loaded content
+    var observer = new MutationObserver(replaceRelativeDates);
+    observer.observe(document.body, { childList: true, subtree: true });
+})();
