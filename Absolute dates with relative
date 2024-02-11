@@ -1,0 +1,65 @@
+// ==UserScript==
+// @name         GitHub Absolute Dates with Relative
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  Shows both relative and absolute dates on GitHub
+// @author       Vintagemotors
+// @match        https://github.com/*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    function getRelativeTimeString(daysAgo) {
+        if (daysAgo === 0) {
+            return 'Today';
+        } else if (daysAgo === 1) {
+            return '1 Day Ago';
+        } else if (daysAgo < 31) {
+            return daysAgo + ' Days Ago';
+        } else {
+            var monthsAgo = Math.floor(daysAgo / 30);
+            if (monthsAgo === 1) {
+                return '1 Month Ago';
+            } else if (monthsAgo < 12) {
+                return monthsAgo + ' Months Ago';
+            } else {
+                var yearsAgo = Math.floor(monthsAgo / 12);
+                if (yearsAgo === 1) {
+                    return '1 Year Ago';
+                } else {
+                    return yearsAgo + ' Years Ago';
+                }
+            }
+        }
+    }
+
+    function replaceRelativeDates() {
+        var relativeTimeElements = document.querySelectorAll('relative-time');
+
+        relativeTimeElements.forEach(function(element) {
+            var dateTimeAttribute = element.getAttribute('datetime');
+            if (dateTimeAttribute) {
+                var absoluteDate = new Date(dateTimeAttribute);
+                var relativeDate = element.getAttribute('title');
+
+                var timeDifference = Date.now() - absoluteDate;
+                var daysAgo = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+
+                var relativeTimeString = getRelativeTimeString(daysAgo);
+
+                element.outerHTML = '<span class="no-wrap" title="Relative date: ' + relativeDate + '">' +
+                    absoluteDate.toLocaleString() + ' - ' + relativeTimeString +
+                    '</span>';
+            }
+        });
+    }
+
+    // Run the function initially
+    replaceRelativeDates();
+
+    // Use MutationObserver to handle dynamically loaded content
+    var observer = new MutationObserver(replaceRelativeDates);
+    observer.observe(document.body, { childList: true, subtree: true });
+})();
