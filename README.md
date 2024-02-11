@@ -6,3 +6,7 @@
 - The absolute dates only version may not work completely as I don't use it.
 
 Replace ```1 Day Ago``` with ```Yesterday``` if you want it to say ```Yesterday``` instead. 
+
+### Disclaimer
+
+This only works when it feels like it. 
