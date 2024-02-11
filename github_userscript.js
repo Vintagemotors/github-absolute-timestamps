@@ -44,7 +44,27 @@
     }
 
     function getRelativeTimeString(daysAgo) {
-        // ... (unchanged code)
+        if (daysAgo === 0) {
+            return 'Today';
+        } else if (daysAgo === 1) {
+            return '1 Day Ago';
+        } else if (daysAgo < 31) {
+            return daysAgo + ' Days Ago';
+        } else {
+            var monthsAgo = Math.floor(daysAgo / 30);
+            if (monthsAgo === 1) {
+                return '1 Month Ago';
+            } else if (monthsAgo < 12) {
+                return monthsAgo + ' Months Ago';
+            } else {
+                var yearsAgo = Math.floor(monthsAgo / 12);
+                if (yearsAgo === 1) {
+                    return '1 Year Ago';
+                } else {
+                    return yearsAgo + ' Years Ago';
+                }
+            }
+        }
     }
 
     replaceRelativeDates();
