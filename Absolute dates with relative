@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      4.0
 // @description  Shows both relative and absolute dates on GitHub, including last edit time for comments (Issues Only)
-// @author       You
+// @author       Vintagemotors
 // @match        https://github.com/*/issues/*
 // @grant        GM_addStyle
 // ==/UserScript==
